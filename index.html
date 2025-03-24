@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Task Management System</title>
+    <style>
+        :root {
+            --primary-color: #11181c;
+            --secondary-color: #67686a;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #333;
+        }
+      img{
+        width: 50px;
+        border-radius: 100%;
+      }
+     
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-gray);
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .search-bar {
+            display: flex;
+            background: white;
+            border-radius: 4px;
+            padding: 0.5rem;
+            width: 300px;
+        }
+        
+        .search-bar input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 0 0.5rem;
+        }
+        
+        .board-container {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .board-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .columns-container {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            min-height: calc(100vh - 180px);
+        }
+        
+        .column {
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            min-width: 300px;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .column-header {
+            padding: 1rem;
+            background-color: var(--medium-gray);
+            border-radius: 4px 4px 0 0;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .column-content {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 250px);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            padding: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+        }
+        
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-description {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .card-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .tag {
+            background-color: var(--light-gray);
+            padding: 0.2rem 0.5rem;
+            border-radius: 2px;
+            font-size: 0.7rem;
+        }
+        
+        .high {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .medium {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+        
+        .low {
+            background-color: #dcedc8;
+            color: #33691e;
+        }
+        
+        .add-card {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: #777;
+            cursor: pointer;
+            border-radius: 0 0 4px 4px;
+        }
+        
+        .add-card:hover {
+            background-color: var(--medium-gray);
+            color: var(--dark-gray);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 4px;
+            width: 500px;
+            max-width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .cancel-btn {
+            background-color: var(--medium-gray);
+            color: var(--dark-gray);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>TaskFlow</span>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search tasks...">
+        </div>
+        <div class="page">
+            <i><img src="9746fb14-cfdf-4e47-bbfc-6aea90156260.jpg" alt=""></i>
+        </div>
+    </header>
+    
+    <div class="board-container">
+        <div class="board-title">
+            <h2>Team Project Board</h2>
+            <button class="btn" id="add-column-btn">+ Add Column</button>
+        </div>
+        
+        <div class="columns-container" id="columns">
+            <div class="column">
+                <div class="column-header">
+                    <span>To Do</span>
+                    <span class="task-count">3</span>
+                </div>
+                <div class="column-content">
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Update landing page UI</div>
+                        <div class="card-description">Refresh the landing page with new branding elements and improve mobile responsiveness.</div>
+                        <div class="card-meta">
+                            <span>Due: Mar 15</span>
+                            <span>Assigned: yassine</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag high">High Priority</span>
+                            <span class="tag">UI/UX</span>
+                        </div>
+                    </div>
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Fix navigation bug</div>
+                        <div class="card-description">Menu dropdown is not working correctly on Safari browsers.</div>
+                        <div class="card-meta">
+                            <span>Due: Mar 12</span>
+                            <span>Assigned: Jamie</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag medium">Medium Priority</span>
+                            <span class="tag">Bug</span>
+                        </div>
+                    </div>
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Create API documentation</div>
+                        <div class="card-description">Document all API endpoints for the developer portal.</div>
+                        <div class="card-meta">
+                            <span>Due: Mar 20</span>
+                            <span>Assigned: Taylor</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag low">Low Priority</span>
+                            <span class="tag">Documentation</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="add-card" onclick="openTaskModal('add')">
+                    <span>+ Add a card</span>
+                </div>
+            </div>
+            
+            <div class="column">
+                <div class="column-header">
+                    <span>In Progress</span>
+                    <span class="task-count">2</span>
+                </div>
+                <div class="column-content">
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Implement user authentication</div>
+                        <div class="card-description">Add OAuth integration with Google and Facebook login options.</div>
+                        <div class="card-meta">
+                            <span>Due: Mar 14</span>
+                            <span>Assigned: Casey</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag high">High Priority</span>
+                            <span class="tag">Backend</span>
+                        </div>
+                    </div>
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Create dashboard widgets</div>
+                        <div class="card-description">Design and implement analytics widgets for the admin dashboard.</div>
+                        <div class="card-meta">
+                            <span>Due: Mar 18</span>
+                            <span>Assigned: Robin</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag medium">Medium Priority</span>
+                            <span class="tag">Feature</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="add-card" onclick="openTaskModal('add')">
+                    <span>+ Add a card</span>
+                </div>
+            </div>
+            
+            <div class="column">
+                <div class="column-header">
+                    <span>Review</span>
+                    <span class="task-count">1</span>
+                </div>
+                <div class="column-content">
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Refactor database queries</div>
+                        <div class="card-description">Optimize database access patterns for improved performance.</div>
+                        <div class="card-meta">
+                            <span>Due: Mar 13</span>
+                            <span>Assigned: Jordan</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag medium">Medium Priority</span>
+                            <span class="tag">Performance</span>
+                        </div>
+                        <div>
+                            <button class="btn"><a href="googledrive" style="color: #f0f2f5;">chek her</a></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="add-card" onclick="openTaskModal('add')">
+                    <span>+ Add a card</span>
+                </div>
+            </div>
+            
+            <div class="column">
+                <div class="column-header">
+                    <span>Done</span>
+                    <span class="task-count">2</span>
+                </div>
+                <div class="column-content">
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Setup CI/CD pipeline</div>
+                        <div class="card-description">Configure automated testing and deployment workflow.</div>
+                        <div class="card-meta">
+                            <span>Completed: Mar 5</span>
+                            <span>Assigned: Morgan</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag">DevOps</span>
+                        </div>
+                        <div>
+                            <button class="btn"><a href="googledrive" style="color: #f0f2f5;">chek her</a></button>
+                        </div>
+                    </div>
+                    <div class="card" onclick="openTaskModal('edit')">
+                        <div class="card-title">Design product logo</div>
+                        <div class="card-description">Create logo variations for the new product line.</div>
+                        <div class="card-meta">
+                            <span>Completed: Mar 7</span>
+                            <span>Assigned: Sam</span>
+                        </div>
+                        <div class="card-tags">
+                            <span class="tag">Design</span>
+                        </div>
+                        <div>
+                            <button class="btn"><a href="googledrive" style="color: #f0f2f5;">chek her</a></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="add-card" onclick="openTaskModal('add')">
+                    <span>+ Add a card</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Task Modal -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Add New Task</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="task-title">Task Title</label>
+                    <input type="text" id="task-title" placeholder="Enter task title" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-description">Description</label>
+                    <textarea id="task-description" placeholder="Enter task description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-assigned">Assigned To</label>
+                    <select name="" id="">
+                        <option value="">Desainer</option>
+                        <option value="">Editeur</option>
+                        <option value="">developper</option>
+                        <option value="">technicien</option>
+                        <option value="">gestioner</option>
+                        <option value="">comptable</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-due-date">Due Date</label>
+                    <input type="date" id="task-due-date">
+                </div>
+                <div class="form-group">
+                    <label for="task-tags">Tags</label>
+                    <input type="text" id="task-tags" placeholder="Separate tags by comma">
+                </div>
+                <div class="form-group">
+                    <label for="task-form" >Add media</label>
+                    <input type="file" placeholder="add media">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn cancel-btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Column Modal -->
+    <div class="modal" id="column-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Column</h3>
+                <button class="close-btn" onclick="closeColumnModal()">×</button>
+            </div>
+            <form id="column-form">
+                <div class="form-group">
+                    <label for="column-title">Column Title</label>
+                    <input type="text" id="column-title" placeholder="Enter column title" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn cancel-btn" onclick="closeColumnModal()">Cancel</button>
+                    <button type="submit" class="btn">Add Column</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Select elements
+        const taskModal = document.getElementById('task-modal');
+        const columnModal = document.getElementById('column-modal');
+        const taskForm = document.getElementById('task-form');
+        const columnForm = document.getElementById('column-form');
+        const modalTitle = document.getElementById('modal-title');
+        const columnsContainer = document.getElementById('columns');
+        const addColumnBtn = document.getElementById('add-column-btn');
+        
+        // Open task modal
+        function openTaskModal(mode) {
+            if (mode === 'add') {
+                modalTitle.textContent = 'Add New Task';
+                taskForm.reset();
+            } else {
+                modalTitle.textContent = 'Edit Task';
+                // In a real app, we would populate the form with task data here
+            }
+            taskModal.style.display = 'flex';
+        }
+        
+        // Close task modal
+        function closeModal() {
+            taskModal.style.display = 'none';
+        }
+        
+        // Open column modal
+        addColumnBtn.addEventListener('click', () => {
+            columnModal.style.display = 'flex';
+        });
+        
+        // Close column modal
+        function closeColumnModal() {
+            columnModal.style.display = 'none';
+        }
+        
+        // Handle task form submission
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In a real app, we would save the task data here
+            
+            // Create a sample card for demonstration
+            const columnContent = document.querySelector('.column-content');
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => openTaskModal('edit');
+            
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const assigned = document.getElementById('task-assigned').value;
+            const dueDate = document.getElementById('task-due-date').value;
+            const priority = document.getElementById('task-priority').value;
+            const tags = document.getElementById('task-tags').value.split(',').map(tag => tag.trim());
+            
+            const formattedDueDate = dueDate ? new Date(dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+            
+            card.innerHTML = `
+                <div class="card-title">${title}</div>
+                <div class="card-description">${description}</div>
+                <div class="card-meta">
+                    <span>Due: ${formattedDueDate}</span>
+                    <span>Assigned: ${assigned}</span>
+                </div>
+                <div class="card-tags">
+                    <span class="tag ${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)} Priority</span>
+                    ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+            `;
+            
+            // Add the card to the first column
+            document.querySelector('.column-content').prepend(card);
+            
+            // Update task count
+            const taskCount = document.querySelector('.column-header .task-count');
+            taskCount.textContent = parseInt(taskCount.textContent) + 1;
+            
+            closeModal();
+        });
+        
+        // Handle column form submission
+        columnForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const columnTitle = document.getElementById('column-title').value;
+            
+            // Create new column
+            const column = document.createElement('div');
+            column.className = 'column';
+            column.innerHTML = `
+                <div class="column-header">
+                    <span>${columnTitle}</span>
+                    <span class="task-count">0</span>
+                </div>
+                <div class="column-content">
+                </div>
+                <div class="add-card" onclick="openTaskModal('add')">
+                    <span>+ Add a card</span>
+                </div>
+            `;
+            
+            columnsContainer.appendChild(column);
+            closeColumnModal();
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === taskModal) {
+                closeModal();
+            }
+            if (e.target === columnModal) {
+                closeColumnModal();
+            }
+        });
+        
+        // Add drag and drop functionality in a real app
+        // This is just a simple implementation
+    </script>
+</body>
+</html>
